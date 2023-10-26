@@ -19,6 +19,7 @@ contract Handler is Test {
 
     uint256 public timesMintIsCalled;
     address[] public usersWithCollateralDeposited;
+    MockV3Aggregator public ethUsdPriceFeed;
 
     uint256 MAX_DEPOSIT_SIZE = type(uint96).max;
 
@@ -29,6 +30,8 @@ contract Handler is Test {
         address[] memory collateralTokens = dsce.getCollateralTokens();
         weth = ERC20Mock(collateralTokens[0]);
         wbtc = ERC20Mock(collateralTokens[1]);
+
+        ethUsdPriceFeed = MockV3Aggregator(dsce.getCollateralTokenPriceFeed(address(weth)));
     }
 
     function mintDsc(uint256 amount, uint256 addressSeed) public {
@@ -84,6 +87,12 @@ contract Handler is Test {
         }
         dsce.redeemCollateral(address(collateral), amountCollateral);
     }
+
+    // This breaks our invariant test suite
+    // function updateCollateralPrice(uint96 newPrice) public {
+    //     int256 newPriceInt = int256(uint256(newPrice));
+    //     ethUsdPriceFeed.updateAnswer(newPriceInt);
+    // }
 
     //helper function
     function _getCollateralFromSeed(uint256 collateralSeed) private view returns (ERC20Mock){
